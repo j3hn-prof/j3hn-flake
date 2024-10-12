@@ -18,16 +18,14 @@
 		defSys = { hostName, arch ? "x86_64-linux" }: lib.nixosSystem {
 			system = arch;
 			specialArgs = { inherit inputs hostName; };
-			modules = [
-				./hosts/${hostName}
-			];
+			modules = [ ./hosts/${hostName} ./modules ];
 		};
 
 	in {
 		nixosConfigurations = {
 			ideapad5 = defSys { hostName = "ideapad5"; };
 			# desktop = defSys { hostName = "desktop"; };
-			wm = defSys { hostName = "wm"; };
+			vm = defSys { hostName = "vm"; };
 		};
 	};
 }

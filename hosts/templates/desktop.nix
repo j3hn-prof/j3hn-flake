@@ -1,14 +1,17 @@
 { config, pkgs, lib, inputs, ... }:
 
-let
-	name = "j3hn";
-	sysName = "device";
-	sysVer = "24.11";
-	shellPkg = "zsh";
-in
+let nixSysConsts = config.nixSysConsts; in
 {
+	options = {
+		nixSysConsts = {
+			userName = lib.mkOption { type = lib.types.nonEmptyStr; };
+			sysName = lib.mkOption { type = lib.types.nonEmptyStr; };
+			sysVer = lib.mkOption { type = lib.types.nonEmptyStr; };
+			shellPkg = lib.mkOption { type = lib.types.nonEmptyStr; };
+		};
+	};
 	config = {
-		system.stateVersion = lib.mkDefault sysVer;
+		system.stateVersion = lib.mkDefault "${nixSysConsts.sysVer}";
 		nix.settings.experimental-features = ["nix-command" "flakes"];
 		# System timezone
 		services.automatic-timezoned.enable = true;
@@ -22,19 +25,19 @@ in
 			useOSProber = true;
 		};
 		# I use zsh btw
-		environment.shells = [ pkgs.${shellPkg} ];
-		users.defaultUserShell = pkgs.${shellPkg};
-		programs.${shellPkg}.enable = true;
+		environment.shells = [ pkgs.${nixSysConsts.shellPkg} ];
+		users.defaultUserShell = pkgs.${nixSysConsts.shellPkg};
+		programs.${nixSysConsts.shellPkg}.enable = true;
 		# User configuration
-		users.users.${name} = {
+		users.users.${nixSysConsts.userName} = {
 			isNormalUser = true;
 			description = "Primary user";
 			extraGroups = [ "networkmanager" "wheel" ];
-			shell = pkgs.${shellPkg};
+			shell = pkgs.${nixSysConsts.shellPkg};
 		};
 		# Networking configuration
 		networking = {
-			hostName = sysName;
+			hostName = "${nixSysConsts.sysName}";
 			networkmanager.enable = true;
 		};
 		# Define system packages
